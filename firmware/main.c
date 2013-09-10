@@ -518,8 +518,6 @@ int __attribute__((__noreturn__)) main(void)
         leaveBootloader();
     }
 
-    MCUCSR = 0;                     /* clear all reset flags for next time */
-
     odDebugInit();
     DBG1(0x00, 0, 0);
 #ifndef NO_FLASH_WRITE
@@ -539,6 +537,7 @@ int __attribute__((__noreturn__)) main(void)
 #	endif
 	wdt_disable();    /* main app may have enabled watchdog */
 #endif
+	MCUCSR = 0;       /* clear all reset flags for next time */
         initForUsbConnectivity();
         do{
             usbPoll();
