@@ -70,8 +70,7 @@ these macros are defined, the boot loader usees them.
  */
 
 #ifndef USB_CFG_DMINUS_BIT
-  /* This is Revision 3 and later (where PD6 and PD7 were swapped */
-  #define USB_CFG_DMINUS_BIT      7    /* Rev.2 and previous was 6 */
+  #define USB_CFG_DMINUS_BIT      6
 #endif
 /* This is the bit number in USB_CFG_IOPORT where the USB D- line is connected.
  * This may be any bit in the port.
@@ -90,8 +89,7 @@ these macros are defined, the boot loader usees them.
  * jumper is connected to this port
  */
 #ifndef JUMPER_BIT
-  /* This is Revision 3 and later (where PD6 and PD7 were swapped */
-  #define JUMPER_BIT           6       /* Rev.2 and previous was 7 */
+  #define JUMPER_BIT           7
 #endif
 /* 
  * jumper is connected to this bit in port "JUMPER_PORT", active low
