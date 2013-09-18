@@ -70,7 +70,7 @@ these macros are defined, the boot loader usees them.
  */
 
 #ifndef USB_CFG_DMINUS_BIT
-  #define USB_CFG_DMINUS_BIT      6
+  #define USB_CFG_DMINUS_BIT      4
 #endif
 /* This is the bit number in USB_CFG_IOPORT where the USB D- line is connected.
  * This may be any bit in the port.
