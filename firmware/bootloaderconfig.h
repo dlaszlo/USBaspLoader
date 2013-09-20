@@ -287,19 +287,6 @@ these macros are defined, the boot loader usees them.
  * instead the right content of the flash memory.
  */
 
-#ifdef CONFIG_USE__EXCESSIVE_ASSEMBLER
-#	define USE_EXCESSIVE_ASSEMBLER		1
-#else
-#	define USE_EXCESSIVE_ASSEMBLER		0
-#endif
-/* This macro enables large codeareas of hand-optimized assembler code.
- * WARNING:
- * It will only work properly on devices with <64k of flash memory and SRAM.
- * Some configuration macros (when changed) may not be applied correctly
- * (since their behaviour is raced within asm)!
- * Nevertheless this feature saves lots of memory.
- */
-
 #ifdef CONFIG_USE__BOOTUP_CLEARRAM
 #	define USE_BOOTUP_CLEARRAM		1
 #else
