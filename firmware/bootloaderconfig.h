@@ -329,12 +329,6 @@ static inline void  bootLoaderInit(void)
 {
     PIN_DDR(JUMPER_PORT)  = 0;
     PIN_PORT(JUMPER_PORT) = (1<< PIN(JUMPER_PORT, JUMPER_BIT)); /* activate pull-up */
-
-//     deactivated by Stephan - reset after each avrdude op is annoing!
-//     if(!(MCUCSR & (1 << EXTRF)))    /* If this was not an external reset, ignore */
-//         leaveBootloader();
-
-    MCUCSR = 0;                     /* clear all reset flags for next time */
 }
 
 static inline void  bootLoaderExit(void)

@@ -502,6 +502,13 @@ int __attribute__((__noreturn__)) main(void)
 {
     /* initialize  */
     bootLoaderInit();
+
+    if(!(MCUCSR & (1 << EXTRF))){   /* If this was not an external reset, ignore */
+        leaveBootloader();
+    }
+
+    MCUCSR = 0;                     /* clear all reset flags for next time */
+
     odDebugInit();
     DBG1(0x00, 0, 0);
 #ifndef NO_FLASH_WRITE
