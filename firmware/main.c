@@ -502,6 +502,7 @@ int __attribute__((__noreturn__)) main(void)
 {
     /* initialize  */
     bootLoaderInit();
+    wdt_reset();
 
     if(!(MCUCSR & (1 << EXTRF))){   /* If this was not an external reset, ignore */
         leaveBootloader();

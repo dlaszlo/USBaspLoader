@@ -32,7 +32,7 @@ bootLoaderCondition() is called immediately after initialization and in each
 main loop iteration. If it returns TRUE, the boot loader will be active. If it
 returns FALSE, the boot loader jumps to address 0 (the loaded application)
 immediately.
-
+/
 For compatibility with Thomas Fischl's avrusbboot, we also support the macro
 names BOOTLOADER_INIT and BOOTLOADER_CONDITION for this functionality. If
 these macros are defined, the boot loader usees them.
@@ -75,6 +75,7 @@ these macros are defined, the boot loader usees them.
 /* This is the bit number in USB_CFG_IOPORT where the USB D- line is connected.
  * This may be any bit in the port.
  */
+
 #ifndef USB_CFG_DPLUS_BIT
   #define USB_CFG_DPLUS_BIT       USB_CFG_INTPORT_BIT
 #endif
@@ -82,17 +83,33 @@ these macros are defined, the boot loader usees them.
  * This may be any bit in the port. Please note that D+ must also be connected
  * to interrupt pin INT0!
  */
+
 #ifndef JUMPER_PORT
   #define JUMPER_PORT		USB_CFG_IOPORTNAME
 #endif
 /* 
  * jumper is connected to this port
  */
+
+#ifndef LED_PORT
+  #define LED_PORT		USB_CFG_IOPORTNAME
+#endif
+/*
+ * Bootloader indicator LED port
+ */
+
 #ifndef JUMPER_BIT
   #define JUMPER_BIT           7
 #endif
 /* 
  * jumper is connected to this bit in port "JUMPER_PORT", active low
+ */
+
+#ifndef LED_BIT
+  #define LED_BIT              6
+#endif
+/*
+ * Bootloader indicator LED bit
  */
 
 #define USB_CFG_CLOCK_KHZ       (F_CPU/1000)
@@ -327,12 +344,17 @@ these macros are defined, the boot loader usees them.
 
 static inline void  bootLoaderInit(void)
 {
-    PIN_DDR(JUMPER_PORT)  = 0;
-    PIN_PORT(JUMPER_PORT) = (1<< PIN(JUMPER_PORT, JUMPER_BIT)); /* activate pull-up */
+    PIN_DDR(JUMPER_PORT) &= ~_BV(LED_BIT);
+    PIN_DDR(LED_PORT) |= _BV(LED_BIT);
+    PIN_PORT(JUMPER_PORT) |= _BV(JUMPER_BIT); /* activate pull-up */
+    PIN_PORT(LED_PORT) |= _BV(LED_BIT); /* activate indicator LED */
 }
 
 static inline void  bootLoaderExit(void)
 {
+    PIN_DDR(LED_PORT) = 0;
+    PIN_DDR(JUMPER_PORT) = 0;
+    PIN_PORT(LED_PORT) = 0;
     PIN_PORT(JUMPER_PORT) = 0;		/* undo bootLoaderInit() changes */
 }
 
