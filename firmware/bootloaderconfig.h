@@ -112,6 +112,13 @@ these macros are defined, the boot loader usees them.
  * Bootloader indicator LED bit
  */
 
+#ifndef I2C_LCD
+  #define I2C_LCD              1
+#endif
+#ifndef I2C_LCD_ADDR
+  #define I2C_LCD_ADDR         0x38
+#endif
+
 #define USB_CFG_CLOCK_KHZ       (F_CPU/1000)
 /* Clock rate of the AVR in MHz. Legal values are 12000, 16000 or 16500.
  * The 16.5 MHz version of the code requires no crystal, it tolerates +/- 1%

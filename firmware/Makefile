@@ -33,6 +33,12 @@ usbdrv/usbdrvasm.o: usbdrv/usbdrvasm.S $(DEPENDS)
 usbdrv/oddebug.o: usbdrv/oddebug.c $(DEPENDS)
 	$(CC) usbdrv/oddebug.c -c -o usbdrv/oddebug.o $(CFLAGS)
 
+lcd.o:  lcd.c $(DEPENDS)
+	$(CC) lcd.c -c -o lcd.o $(CFLAGS)
+
+twi.o:  twi.c $(DEPENDS)
+	$(CC) twi.c -c -o twi.o $(CFLAGS)
+
 main.o: main.c $(DEPENDS)
 	$(CC) main.c -c -o main.o $(CFLAGS)
 
@@ -76,14 +82,18 @@ clean:
 	$(RM) main.elf
 	$(RM) main.o
 	$(RM) main.s
+	$(RM) lcd.o
+	$(RM) lcd.s
+	$(RM) twi.o
+	$(RM) twi.s
 	$(RM) usbdrv/usbdrvasm.o
 	$(RM) usbdrv/oddebug.o
 	$(RM) usbdrv/oddebug.s
 	$(RM) usbdrv/usbdrv.s
 
 # file targets:
-main.elf: usbdrv/usbdrvasm.o usbdrv/oddebug.o main.o $(DEPENDS)
-	$(CC) $(CFLAGS) -o main.elf usbdrv/usbdrvasm.o usbdrv/oddebug.o main.o -Wl,-Map,main.map $(LDFLAGS)
+main.elf: usbdrv/usbdrvasm.o usbdrv/oddebug.o main.o lcd.o twi.o $(DEPENDS)
+	$(CC) $(CFLAGS) -o main.elf usbdrv/usbdrvasm.o usbdrv/oddebug.o main.o lcd.o twi.o -Wl,-Map,main.map $(LDFLAGS)
 
 main.asm: main.elf $(DEPENDS)
 	$(OBD) -Stdr main.elf > main.asm

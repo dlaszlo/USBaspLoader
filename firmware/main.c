@@ -44,6 +44,10 @@
 #include "bootloaderconfig.h"
 #include "usbdrv/usbdrv.c"
 
+#if I2C_LCD
+#include "lcd.h"
+#endif
+
 #ifndef BOOTLOADER_ADDRESS
   #error need to know the bootloaders flash address!
 #endif
@@ -358,6 +362,14 @@ usbMsgLen_t usbFunctionSetup(uchar data[8])
     static uchar    replyBuffer[4];
 
     usbMsgPtr = (usbMsgPtr_t)replyBuffer;
+
+#if I2C_LCD
+    if(rq->bRequest == USBASP_FUNC_CONNECT){
+	LCD_setCursor(0, 1);
+	LCD_writeStr("upload...");
+    }
+#endif
+
     if(rq->bRequest == USBASP_FUNC_TRANSMIT){   /* emulate parts of ISP protocol */
         replyBuffer[3] = usbFunctionSetup_USBASP_FUNC_TRANSMIT(rq);
         len = (usbMsgLen_t)4;
@@ -385,6 +397,15 @@ usbMsgLen_t usbFunctionSetup(uchar data[8])
       stayInLoader &= (0xfe);
   #if EXIT_AFTER_UPLOAD
       requestExit = 1;
+    #if I2C_LCD
+      LCD_setCursor(0, 1);
+      LCD_writeStr("reset... ");
+    #endif
+  #else
+    #if I2C_LCD
+      LCD_setCursor(0, 1);
+      LCD_writeStr("         ");
+    #endif
   #endif
 #endif
     }else{
@@ -538,6 +559,11 @@ int __attribute__((__noreturn__)) main(void)
 	wdt_disable();    /* main app may have enabled watchdog */
 #endif
 	MCUCSR = 0;       /* clear all reset flags for next time */
+#if I2C_LCD
+	LCD_init();
+	LCD_setCursor(0, 0);
+	LCD_writeStr("Bootloader");
+#endif
         initForUsbConnectivity();
         do{
             usbPoll();
