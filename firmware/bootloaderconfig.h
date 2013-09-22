@@ -248,6 +248,18 @@ these macros are defined, the boot loader usees them.
  * programmer closes the connection to the device. Costs extra bytes.
  */
 
+#ifndef CONFIG_NO__EXIT_AFTER_UPLOAD
+#  if   BOOTLOADER_CAN_EXIT
+#       define EXIT_AFTER_UPLOAD           1
+#  else
+#       define EXIT_AFTER_UPLOAD           0
+#  endif
+#else
+#       define EXIT_AFTER_UPLOAD           0
+#endif
+/* Exit bootloader after program upload
+ */
+
 #ifndef CONFIG_NO__CHIP_ERASE
 #	define HAVE_CHIP_ERASE             1
 #else
@@ -338,24 +350,30 @@ these macros are defined, the boot loader usees them.
 #   define MCUCSR   MCUSR
 #endif
 
-/* WARNING:
- * following commands and macros may not be evaluated properly when 'USE_EXCESSIVE_ASSEMBLER"
- */
+static inline void  ledOn()
+{
+    PIN_PORT(LED_PORT) |= _BV(LED_BIT); /* activate indicator LED */
+}
+
+static inline void  ledOff()
+{
+    PIN_PORT(LED_PORT) &= ~_BV(LED_BIT);
+}
 
 static inline void  bootLoaderInit(void)
 {
     PIN_DDR(JUMPER_PORT) &= ~_BV(LED_BIT);
     PIN_DDR(LED_PORT) |= _BV(LED_BIT);
     PIN_PORT(JUMPER_PORT) |= _BV(JUMPER_BIT); /* activate pull-up */
-    PIN_PORT(LED_PORT) |= _BV(LED_BIT); /* activate indicator LED */
+    ledOn();
 }
 
 static inline void  bootLoaderExit(void)
 {
-    PIN_DDR(LED_PORT) = 0;
-    PIN_DDR(JUMPER_PORT) = 0;
-    PIN_PORT(LED_PORT) = 0;
+    ledOff();
     PIN_PORT(JUMPER_PORT) = 0;		/* undo bootLoaderInit() changes */
+    PIN_DDR(JUMPER_PORT) = 0;
+    PIN_DDR(LED_PORT) = 0;
 }
 
 #define bootLoaderCondition()		((PIN_PIN(JUMPER_PORT) & (1 << PIN(JUMPER_PORT, JUMPER_BIT))) == 0)

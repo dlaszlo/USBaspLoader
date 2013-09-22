@@ -112,9 +112,13 @@ typedef union longConverter{
 }longConverter_t;
 
 
-#if BOOTLOADER_CAN_EXIT
-static volatile unsigned char	stayinloader = 0xfe;
+#if EXIT_AFTER_UPLOAD
+static volatile unsigned char   requestExit = 0;
+  #if BOOTLOADER_CAN_EXIT
+static volatile unsigned char	stayInLoader = 0xfe;
+  #endif
 #endif
+
 
 static longConverter_t  	currentAddress; /* in bytes */
 static uchar            	bytesRemaining;
@@ -345,9 +349,9 @@ defined (__AVR_ATmega2561__)
 
 usbMsgLen_t usbFunctionSetup(uchar data[8])
 {
-usbRequest_t    *rq = (void *)data;
-usbMsgLen_t     len = 0;
-static uchar    replyBuffer[4];
+    usbRequest_t    *rq = (void *)data;
+    usbMsgLen_t     len = 0;
+    static uchar    replyBuffer[4];
 
     usbMsgPtr = (usbMsgPtr_t)replyBuffer;
     if(rq->bRequest == USBASP_FUNC_TRANSMIT){   /* emulate parts of ISP protocol */
@@ -373,14 +377,16 @@ static uchar    replyBuffer[4];
         }
 
     }else if(rq->bRequest == USBASP_FUNC_DISCONNECT){
-
 #if BOOTLOADER_CAN_EXIT
-      stayinloader	   &= (0xfe);
+      stayInLoader &= (0xfe);
+  #if EXIT_AFTER_UPLOAD
+      requestExit = 1;
+  #endif
 #endif
     }else{
         /* ignore: others, but could be USBASP_FUNC_CONNECT */
 #if BOOTLOADER_CAN_EXIT
-	stayinloader	   |= (0x01);
+	stayInLoader |= (0x01);
 #endif
     }
     return len;
@@ -533,19 +539,24 @@ int __attribute__((__noreturn__)) main(void)
         do{
             usbPoll();
 #if BOOTLOADER_CAN_EXIT
-	if (stayinloader >= 0x10) {
+	if (stayInLoader >= 0x10) {
 	  if (!bootLoaderCondition()) {
-	    stayinloader-=0x10;
+	    stayInLoader-=0x10;
 	  } 
 	} else {
 	  if (bootLoaderCondition()) {
-	    if (stayinloader > 1) stayinloader-=2;
+	    if (stayInLoader > 1) stayInLoader-=2;
 	  }
 	}
 #endif
-
 #if BOOTLOADER_CAN_EXIT
-        }while (stayinloader);	/* main event loop, if BOOTLOADER_CAN_EXIT*/
+  #if EXIT_AFTER_UPLOAD
+          if (requestExit) {
+            _delay_ms(500);
+            break;
+          }
+  #endif
+        }while (stayInLoader);	/* main event loop, if BOOTLOADER_CAN_EXIT*/
 #else
         }while (1);  		/* main event loop */
 #endif
